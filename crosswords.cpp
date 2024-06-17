@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -51,6 +52,11 @@ int randomColor() {
     return color;
 }
 
+string toUpperCase(const string &str) {
+    string result = str;
+    transform(result.begin(), result.end(), result.begin(), ::toupper);
+    return result;
+}
 
 void printGrid(int rows, int cols) {
     for (int i = 0; i < rows; i++) {
@@ -78,31 +84,89 @@ void printHints(vector<string> hints) {
 
 
 int checkLetter(string letter, int row, int col, int score) {
-    if (letter == COMPLETED_CROSSWORD[row][col]) {
-        crossword[row][col] = letter;
-        score++;
+    if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col]) {
+        crossword[row][col] = toUpperCase(letter);
+        score += 2;
     }
     else {
         cout << "Letra incorreta!\n";
-        score--;
+        score -= 1;
     }
     return score;
 }
 
-void printMenu() {
-    int action;
+int checkHorizontalWord(string word, int row, int initialCol, int finalCol, int score) {
+    int wordIndex = 0;
+    for (int col = initialCol; col <= finalCol; col++) {
+        score = checkLetter(string(1, word[wordIndex]), row, col, score);
+        wordIndex++;
+    }
+    return score;
+}
+
+int checkVerticalWord(string word, int col, int initialRow, int finalRow, int score) {
+    int wordIndex = 0;
+    for (int row = initialRow; row <= finalRow; row++) {
+        score = checkLetter(string(1, word[wordIndex]), row, col, score);
+        wordIndex++;
+    }
+    return score;
+}
+
+
+int printMenu(int score) {
+    int action, initialRow, finalRow, initialCol, finalCol;
+    string letter;
+
+    cout << "[1] - Inserir letra" << "\n";
+    cout << "[2] - Inserir Palavra - Horizontal" << "\n";
+    cout << "[3] - Inserir Palavra - Vertical" << "\n";
+    cin >> action;
 
     switch (action) {
-        
+        case 1:
+            cout << "\n" << "Digite a linha: ";
+            cin >> initialRow;
+            cout << "\n" << "Digite a coluna: ";
+            cin >> initialCol;
+            cout << "\n" << "Digite a letra: ";
+            cin >> letter;
+            score = checkLetter(letter, initialRow, initialCol, score);
+            break;
+        case 2:
+            cout << "\n" << "Digite a linha: ";
+            cin >> initialRow;
+            cout << "\n" << "Digite o começo da coluna: ";
+            cin >> initialCol;
+            cout << "\n" << "Digite o final da coluna: ";
+            cin >> finalCol;
+            cout << "\n" << "Digite a palavra: ";
+            cin >> letter;
+            score = checkHorizontalWord(letter, initialRow, initialCol, finalCol, score);
+            break;
+        case 3:
+            cout << "\n" << "Digite a coluna: ";
+            cin >> initialCol;
+            cout << "\n" << "Digite o começo da linha: ";
+            cin >> initialRow;
+            cout << "\n" << "Digite o final da linha: ";
+            cin >> finalRow;
+            cout << "\n" << "Digite a palavra: ";
+            cin >> letter;
+            score = checkVerticalWord(letter, initialCol, initialRow, finalRow, score);
+            break;
+        default:
+            cout << "Opção inválida!\n";
+            break;
     }
+    return score;
 }
 
 
 main() {
 	system("chcp 65001");
 	
-
-    int score = 0, turnCount = 0, totalTurns = 10;
+    int score = 0, turnCount = 0, totalTurns = 100;
 
     vector<string> hints = {
         "Classe conjuradora, geralmente representada pela sua barba, cajado e chapéu pontudo.",
@@ -120,8 +184,8 @@ main() {
         "Raça predominante na maioria dos mundos."
     };
 
-    // do {
-        system("cls");
+    do {
+        system("cls"); // Limpa a tela.
         cout << "Turno: " << turnCount + 1 << "\n";
         cout << "Pontuação: " << score << "\n\n";
 
@@ -129,6 +193,9 @@ main() {
         cout << "\n\n";
         printHints(hints);
         cout << "\n\n";
-        printMenu();
-    // } while (turnCount <= totalTurns);
+        score = printMenu(score);
+        system("pause");
+
+        turnCount++;
+    } while (turnCount <= totalTurns);
 }	
