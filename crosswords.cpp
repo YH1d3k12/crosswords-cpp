@@ -39,12 +39,13 @@ string crossword[ROWS][COLS] = {
 };
 
 
+// Função para determinar as coordenadas que será imprimido no terminal.
 void gotoxy(int x, int y) {
     COORD coord; coord.X = x; coord.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-
+// Função para randomizar a cor dentro de um padrão específico.
 int randomColor() {
     int color = rand() % 7 + 9;
     // Assegurando que o valor da cor seja entre 9 e 15.
@@ -52,21 +53,25 @@ int randomColor() {
     return color;
 }
 
+// Função para transforma string em UPPERCASE.
 string toUpperCase(const string &str) {
     string result = str;
     transform(result.begin(), result.end(), result.begin(), ::toupper);
     return result;
 }
 
+// Função para imprimir o grid de caça palavras.
 void printGrid(int rows, int cols) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            if (crossword[i][j] != "#") {
+            if (crossword[i][j] != "#") { 
+                // Se não for uma celula vazia, imprima o caractere.
                 SetConsoleTextAttribute(hc, randomColor());
                 gotoxy(j * 4, i * 2 + 5);
                 cout << crossword[i][j];
             }
             else {
+                // Se for uma celula vazia, imprima nada.
                 SetConsoleTextAttribute(hc, 3);
                 gotoxy(j * 4, i * 2 + 5);
                 cout << " ";
@@ -83,31 +88,45 @@ void printHints(vector<string> hints) {
 }
 
 
-int checkLetter(string letter, int row, int col, int score) {
-    if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col]) {
+int checkLetter(string letter, int row, int col) {
+    int result;
+    /*
+        Resultados:
+        1 - Sucesso.
+        2 - Falha.
+        3 - Neutro.
+    */
+
+    // Se a letra for correta e já está no caça palavras, ignore.
+    if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col] && crossword[row][col] == COMPLETED_CROSSWORD[row][col]) {
+        return result = 3;
+    }
+    else if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col]) {
         crossword[row][col] = toUpperCase(letter);
-        score += 2;
+        return result = 1;
     }
     else {
         cout << "Letra incorreta!\n";
-        score -= 1;
+        return result = 2;
     }
-    return score;
+    return result = 3;
 }
+
 
 int checkHorizontalWord(string word, int row, int initialCol, int finalCol, int score) {
     int wordIndex = 0;
     for (int col = initialCol; col <= finalCol; col++) {
-        score = checkLetter(string(1, word[wordIndex]), row, col, score);
+        score = checkLetter(string(1, word[wordIndex]), row, col);
         wordIndex++;
     }
     return score;
 }
 
+
 int checkVerticalWord(string word, int col, int initialRow, int finalRow, int score) {
     int wordIndex = 0;
     for (int row = initialRow; row <= finalRow; row++) {
-        score = checkLetter(string(1, word[wordIndex]), row, col, score);
+        score = checkLetter(string(1, word[wordIndex]), row, col);
         wordIndex++;
     }
     return score;
@@ -125,34 +144,23 @@ int printMenu(int score) {
 
     switch (action) {
         case 1:
-            cout << "\n" << "Digite a linha: ";
-            cin >> initialRow;
-            cout << "\n" << "Digite a coluna: ";
-            cin >> initialCol;
-            cout << "\n" << "Digite a letra: ";
-            cin >> letter;
-            score = checkLetter(letter, initialRow, initialCol, score);
+            cout << "\n" << "Digite a linha: "; cin >> initialRow;
+            cout << "\n" << "Digite a coluna: "; cin >> initialCol;
+            cout << "\n" << "Digite a letra: "; cin >> letter;
+            score = checkLetter(letter, initialRow, initialCol);
             break;
         case 2:
-            cout << "\n" << "Digite a linha: ";
-            cin >> initialRow;
-            cout << "\n" << "Digite o começo da coluna: ";
-            cin >> initialCol;
-            cout << "\n" << "Digite o final da coluna: ";
-            cin >> finalCol;
-            cout << "\n" << "Digite a palavra: ";
-            cin >> letter;
+            cout << "\n" << "Digite a linha: "; cin >> initialRow;
+            cout << "\n" << "Digite o começo da coluna: "; cin >> initialCol;
+            cout << "\n" << "Digite o final da coluna: "; cin >> finalCol;
+            cout << "\n" << "Digite a palavra: "; cin >> letter;
             score = checkHorizontalWord(letter, initialRow, initialCol, finalCol, score);
             break;
         case 3:
-            cout << "\n" << "Digite a coluna: ";
-            cin >> initialCol;
-            cout << "\n" << "Digite o começo da linha: ";
-            cin >> initialRow;
-            cout << "\n" << "Digite o final da linha: ";
-            cin >> finalRow;
-            cout << "\n" << "Digite a palavra: ";
-            cin >> letter;
+            cout << "\n" << "Digite a coluna: "; cin >> initialCol;
+            cout << "\n" << "Digite o começo da linha: "; cin >> initialRow;
+            cout << "\n" << "Digite o final da linha: "; cin >> finalRow;
+            cout << "\n" << "Digite a palavra: "; cin >> letter;
             score = checkVerticalWord(letter, initialCol, initialRow, finalRow, score);
             break;
         default:
