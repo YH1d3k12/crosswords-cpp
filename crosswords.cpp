@@ -10,35 +10,6 @@ HANDLE hc = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int const ROWS = 11, COLS = 17;
 
-string const COMPLETED_CROSSWORD[ROWS][COLS] = {
-    {"#", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
-    {"1", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "L", "#", "#", "#", "#"},
-    {"2", "#", "M", "A", "G", "O", "#", "#", "M", "A", "G", "I", "A", "#", "#", "#", "#"},
-    {"3", "#", "#", "N", "#", "#", "#", "#", "#", "#", "#", "#", "D", "R", "O", "W", "#"},
-    {"4", "#", "#", "A", "#", "D", "A", "D", "O", "S", "#", "#", "I", "#", "#", "#", "#"},
-    {"5", "#", "#", "O", "U", "R", "O", "#", "#", "#", "L", "#", "N", "#", "#", "#", "#"},
-    {"6", "#", "#", "#", "#", "A", "R", "Q", "U", "E", "I", "R", "O", "#", "#", "#", "#"},
-    {"7", "#", "#", "#", "O", "G", "R", "O", "#", "#", "C", "#", "#", "#", "#", "#", "#"},
-    {"8", "#", "#", "#", "#", "A", "#", "#", "#", "#", "H", "U", "M", "A", "N", "O", "#"},
-    {"9", "#", "E", "L", "F", "O", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"},
-    {"10", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"}
-};
-
-string crossword[ROWS][COLS] = {
-    {"#", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
-    {"1", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "?", "#", "#", "#", "#"},
-    {"2", "#", "?", "?", "?", "?", "#", "#", "?", "?", "?", "?", "?", "#", "#", "#", "#"},
-    {"3", "#", "#", "?", "#", "#", "#", "#", "#", "#", "#", "#", "?", "?", "?", "?", "#"},
-    {"4", "#", "#", "?", "#", "?", "?", "?", "?", "?", "#", "#", "?", "#", "#", "#", "#"},
-    {"5", "#", "#", "?", "?", "?", "?", "#", "#", "#", "?", "#", "?", "#", "#", "#", "#"},
-    {"6", "#", "#", "#", "#", "?", "?", "?", "?", "?", "?", "?", "?", "#", "#", "#", "#"},
-    {"7", "#", "#", "#", "?", "?", "?", "?", "#", "#", "?", "#", "#", "#", "#", "#", "#"},
-    {"8", "#", "#", "#", "#", "?", "#", "#", "#", "#", "?", "?", "?", "?", "?", "?", "#"},
-    {"9", "#", "?", "?", "?", "?", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"},
-    {"10", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"}
-};
-
-
 // Função para determinar as coordenadas que será imprimido no terminal.
 void gotoxy(int x, int y) {
     COORD coord; coord.X = x; coord.Y = y;
@@ -49,7 +20,7 @@ void gotoxy(int x, int y) {
 int randomColor() {
     int color = rand() % 7 + 9;
     // Assegurando que o valor da cor seja entre 9 e 15.
-    if (color > 15 || color < 9) {return randomColor();}
+    if (color > 15 || color < 9) { return randomColor(); }
     return color;
 }
 
@@ -61,10 +32,10 @@ string toUpperCase(const string &str) {
 }
 
 // Função para imprimir o grid de caça palavras.
-void printGrid(int rows, int cols) {
+void printGrid(int rows, int cols, string crossword[ROWS][COLS]) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            if (crossword[i][j] != "#") { 
+            if (crossword[i][j] != "#") {
                 // Se não for uma celula vazia, imprima o caractere.
                 SetConsoleTextAttribute(hc, randomColor());
                 gotoxy(j * 4, i * 2 + 5);
@@ -80,15 +51,13 @@ void printGrid(int rows, int cols) {
     }
 }
 
-
 void printHints(vector<string> hints) {
     for (int i = 0; i < hints.size(); i++) {
         cout << i + 1 << ". " << hints[i] << "\n";
     }
 }
 
-
-int checkLetter(string letter, int row, int col) {
+int checkLetter(string letter, int row, int col, string crossword[ROWS][COLS], string COMPLETED_CROSSWORD[ROWS][COLS]) {
     int result;
     /*
         Resultados:
@@ -99,41 +68,37 @@ int checkLetter(string letter, int row, int col) {
 
     // Se a letra for correta e já está no caça palavras, ignore.
     if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col] && crossword[row][col] == COMPLETED_CROSSWORD[row][col]) {
-        return result = 3;
+        return 3;
     }
     else if (toUpperCase(letter) == COMPLETED_CROSSWORD[row][col]) {
         crossword[row][col] = toUpperCase(letter);
-        return result = 1;
+        return 1;
     }
     else {
         cout << "Letra incorreta!\n";
-        return result = 2;
+        return 2;
     }
-    return result = 3;
 }
 
-
-int checkHorizontalWord(string word, int row, int initialCol, int finalCol, int score) {
+int checkHorizontalWord(string word, int row, int initialCol, int finalCol, int score, string crossword[ROWS][COLS], string COMPLETED_CROSSWORD[ROWS][COLS]) {
     int wordIndex = 0;
     for (int col = initialCol; col <= finalCol; col++) {
-        score = checkLetter(string(1, word[wordIndex]), row, col);
+        score = checkLetter(string(1, word[wordIndex]), row, col, crossword, COMPLETED_CROSSWORD);
         wordIndex++;
     }
     return score;
 }
 
-
-int checkVerticalWord(string word, int col, int initialRow, int finalRow, int score) {
+int checkVerticalWord(string word, int col, int initialRow, int finalRow, int score, string crossword[ROWS][COLS], string COMPLETED_CROSSWORD[ROWS][COLS]) {
     int wordIndex = 0;
     for (int row = initialRow; row <= finalRow; row++) {
-        score = checkLetter(string(1, word[wordIndex]), row, col);
+        score = checkLetter(string(1, word[wordIndex]), row, col, crossword, COMPLETED_CROSSWORD);
         wordIndex++;
     }
     return score;
 }
 
-
-int printMenu(int score) {
+int printMenu(int score, string crossword[ROWS][COLS], string COMPLETED_CROSSWORD[ROWS][COLS]) {
     int action, initialRow, finalRow, initialCol, finalCol;
     string letter;
 
@@ -147,21 +112,21 @@ int printMenu(int score) {
             cout << "\n" << "Digite a linha: "; cin >> initialRow;
             cout << "\n" << "Digite a coluna: "; cin >> initialCol;
             cout << "\n" << "Digite a letra: "; cin >> letter;
-            score = checkLetter(letter, initialRow, initialCol);
+            score = checkLetter(letter, initialRow, initialCol, crossword, COMPLETED_CROSSWORD);
             break;
         case 2:
             cout << "\n" << "Digite a linha: "; cin >> initialRow;
             cout << "\n" << "Digite o começo da coluna: "; cin >> initialCol;
             cout << "\n" << "Digite o final da coluna: "; cin >> finalCol;
             cout << "\n" << "Digite a palavra: "; cin >> letter;
-            score = checkHorizontalWord(letter, initialRow, initialCol, finalCol, score);
+            score = checkHorizontalWord(letter, initialRow, initialCol, finalCol, score, crossword, COMPLETED_CROSSWORD);
             break;
         case 3:
             cout << "\n" << "Digite a coluna: "; cin >> initialCol;
             cout << "\n" << "Digite o começo da linha: "; cin >> initialRow;
             cout << "\n" << "Digite o final da linha: "; cin >> finalRow;
             cout << "\n" << "Digite a palavra: "; cin >> letter;
-            score = checkVerticalWord(letter, initialCol, initialRow, finalRow, score);
+            score = checkVerticalWord(letter, initialCol, initialRow, finalRow, score, crossword, COMPLETED_CROSSWORD);
             break;
         default:
             cout << "Opção inválida!\n";
@@ -170,10 +135,37 @@ int printMenu(int score) {
     return score;
 }
 
+int main() {
+    system("chcp 65001");
 
-main() {
-	system("chcp 65001");
-	
+    string COMPLETED_CROSSWORD[ROWS][COLS] = {
+        {"#", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
+        {"1", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "L", "#", "#", "#", "#"},
+        {"2", "#", "M", "A", "G", "O", "#", "#", "M", "A", "G", "I", "A", "#", "#", "#", "#"},
+        {"3", "#", "#", "N", "#", "#", "#", "#", "#", "#", "#", "#", "D", "R", "O", "W", "#"},
+        {"4", "#", "#", "A", "#", "D", "A", "D", "O", "S", "#", "#", "I", "#", "#", "#", "#"},
+        {"5", "#", "#", "O", "U", "R", "O", "#", "#", "#", "L", "#", "N", "#", "#", "#", "#"},
+        {"6", "#", "#", "#", "#", "A", "R", "Q", "U", "E", "I", "R", "O", "#", "#", "#", "#"},
+        {"7", "#", "#", "#", "O", "G", "R", "O", "#", "#", "C", "#", "#", "#", "#", "#", "#"},
+        {"8", "#", "#", "#", "#", "A", "#", "#", "#", "#", "H", "U", "M", "A", "N", "O", "#"},
+        {"9", "#", "E", "L", "F", "O", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"},
+        {"10", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"}
+    };
+
+    string crossword[ROWS][COLS] = {
+        {"#", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
+        {"1", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "?", "#", "#", "#", "#"},
+        {"2", "#", "?", "?", "?", "?", "#", "#", "?", "?", "?", "?", "?", "#", "#", "#", "#"},
+        {"3", "#", "#", "?", "#", "#", "#", "#", "#", "#", "#", "#", "?", "?", "?", "?", "#"},
+        {"4", "#", "#", "?", "#", "?", "?", "?", "?", "?", "#", "#", "?", "#", "#", "#", "#"},
+        {"5", "#", "#", "?", "?", "?", "?", "#", "#", "#", "?", "#", "?", "#", "#", "#", "#"},
+        {"6", "#", "#", "#", "#", "?", "?", "?", "?", "?", "?", "?", "?", "#", "#", "#", "#"},
+        {"7", "#", "#", "#", "?", "?", "?", "?", "#", "#", "?", "#", "#", "#", "#", "#", "#"},
+        {"8", "#", "#", "#", "#", "?", "#", "#", "#", "#", "?", "?", "?", "?", "?", "?", "#"},
+        {"9", "#", "?", "?", "?", "?", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"},
+        {"10", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"}
+    };
+
     int score = 0, turnCount = 0, totalTurns = 100;
 
     vector<string> hints = {
@@ -197,13 +189,13 @@ main() {
         cout << "Turno: " << turnCount + 1 << "\n";
         cout << "Pontuação: " << score << "\n\n";
 
-        printGrid(ROWS, COLS);
+        printGrid(ROWS, COLS, crossword);
         cout << "\n\n";
         printHints(hints);
         cout << "\n\n";
-        score = printMenu(score);
+        score = printMenu(score, crossword, COMPLETED_CROSSWORD);
         system("pause");
 
         turnCount++;
     } while (turnCount <= totalTurns);
-}	
+}
