@@ -43,7 +43,7 @@ int main() {
         {"11", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#"}
     };
 
-    // Substitua as letras por ? aqui.
+    // Substitua as letras por ? aqui e adicione setas para indicar a posição das palavras.
     string crossword[ROWS][COLS] = {
         {"#", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"},
         {"1", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "#", "¹⁰↓", "#", "#", "#", "#"},
@@ -74,6 +74,12 @@ int main() {
         "Ascensão cobiçada por muitos magos e feiticeiros malignos, um ser que transcende a mortalidade.",
         "Raça predominante na maioria dos mundos."
     };
+
+    system("cls"); // Limpa a tela.
+    cout << "\n\t" << "Bem vindo ao caça palavras!" << "\n\n";
+    cout << "- Você tera 40 turnos para completa-lo!" << "\n";
+    cout << "- Leia os enunciados e observe a quantidade de palavras no grid!" << "\n\n";
+    system("pause");
 
     do {
         system("cls"); // Limpa a tela.
